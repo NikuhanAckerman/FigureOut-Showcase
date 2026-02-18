@@ -1,3 +1,8 @@
+# Componentes necessários | Needed software
+
+* 1 - Java 22 | ou superior | or higher
+* 2 - MySQL Server 
+
 # Guia de instalação (PT-BR)
 
 * 1 - Clone o repositório para sua máquina localmente;
