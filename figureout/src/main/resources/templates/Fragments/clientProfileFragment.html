@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+
+<div th:fragment="clientProfileButtonFragment(clientId, numberOfNotifications)">
+    <div style="position: relative; display: inline-block;">
+        <!-- Circle for the notification count -->
+
+        <span th:text="${numberOfNotifications > 9 ? '9+' : numberOfNotifications}" style="
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: darkslategray;
+            color: white;
+            border-radius: 50%;
+            padding: 3px 3px;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+        "></span>
+        <!-- Profile icon -->
+        <a id="clientProfile" type="button" class="nav-link bi bi-person"
+           th:href="@{/clientProfileGeneral/{id}(id=${clientId})}">
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

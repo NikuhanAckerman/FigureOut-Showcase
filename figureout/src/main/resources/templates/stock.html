@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estoque</title>
+  <link rel="stylesheet" href="/CSS/styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="icon" href="/Images/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/6f5xX5L0d7/1XshTLF5j8l2/zg7L2Dd6fR5Jp4C" crossorigin="anonymous"></script>
+</head>
+<body>
+<nav class="navbar navbar-custom fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a id="upper-navbar-text" class="navbar-brand">ESTOQUE</a>
+    </div>
+
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="btn navbar-top-button" th:href="@{/products/seeProducts}">Produtos</a>
+        <a class="btn navbar-top-button" th:href="@{/sales/seeSales}">Vendas</a>
+        <a class="btn btn-danger" href="/index">Painel de Controle</a>
+      </li>
+    </ul>
+
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <div style="max-width: 1200px; margin: 0 auto">
+
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Produto</th>
+        <th>Ativo?</th>
+        <th>Quantidade</th>
+        <th>Custo p/ unidade</th>
+        <th>Custo total</th>
+        <th>Dt. entrada inicial</th>
+        <th>Dt. última entrada</th>
+        <th>Dt. última retirada</th>
+        <th>Histórico</th>
+        <th>Atualizar</th>
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="stock : ${stocks}">
+        <td th:text = "${stock.id}"></td>
+        <td th:text = "${stock.product.name}"></td>
+        <td>
+          <input type="checkbox" th:checked = "${stock.product.active}" disabled>
+        </td>
+        <td th:text = "${stock.productQuantityAvailable}"></td>
+        <td th:text = "'R$' + ${stock.productPurchaseAmount}"></td>
+        <td th:text = "'R$' + ${stock.productPurchaseAmount} * ${stock.productQuantityAvailable}"></td>
+        <td th:text = "${#temporals.format(stock.initialEntryDate, 'dd/MM/yyyy')}"></td>
+        <td th:text = "${#temporals.format(stock.latestEntryDate, 'dd/MM/yyyy')}"></td>
+        <td th:text = "${#temporals.format(stock.latestDropDate, 'dd/MM/yyyy')}"></td>
+
+        <td>
+          <button type="button" class="btn btn-secondary" th:data-bs-stock-id = "${stock.id}" th:data-bs-product-id = "${stock.product.id}" data-bs-toggle="modal" data-bs-target="#seeStockHistoryModal" >Ver Histórico</button>
+        </td>
+
+        <td>
+          <a class="btn btn-primary" th:id="'updateStock-' + ${stock.id}" th:href="@{/stock/updateStock/{id}(id=${stock.id})}">Atualizar</a>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="seeStockHistoryModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Histórico</h3>
+        <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <h1 id="stockProductId"></h1>
+          <div class="card mt-3">
+            <div class="card-body">
+              <h2 class="card-title" id="productId">ID do produto:</h2>
+              <h2 class="card-title text-primary" id="dateOfLastEntry">Data da última entrada:</h2>
+              <h2 class="card-title text-danger" id="dateOfLastDrop">Data da última retirada:</h2>
+
+              <h3 class="card-title">Mudança de estoque</h3>
+              <div id="stockChangeDiv">
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  const seeStockHistoryModal = document.getElementById("seeStockHistoryModal");
+
+  seeStockHistoryModal.addEventListener('show.bs.modal', function (event) {
+    console.log("mostrou modal de informações gerais")
+
+    const button = event.relatedTarget
+
+    const stockId = button.getAttribute('data-bs-stock-id');
+    const productId = button.getAttribute('data-bs-product-id');
+
+    const elementWithId = document.getElementById('productId');
+    elementWithId.textContent = 'ID do produto: '
+    elementWithId.textContent = elementWithId.textContent + " " + productId;
+
+    const dateOfLastEntry = document.getElementById('dateOfLastEntry');
+    const dateOfLastDrop = document.getElementById('dateOfLastDrop');
+
+    const stockChangeDiv = document.getElementById('stockChangeDiv');
+    stockChangeDiv.innerHTML = '';
+
+    fetch(`/stock/getStockDateOfLastEntry/${stockId}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Erro ao retornar data de última entrada.");
+              }
+              return response.json();
+            })
+            .then(dateLastEntry => {
+              dateOfLastEntry.innerHTML = 'Data da última entrada: ' + new Date(dateLastEntry).toLocaleDateString('pt-BR');
+
+            })
+
+    fetch(`/stock/getStockDateOfLastDrop/${stockId}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Erro ao retornar data de última retirada.");
+              }
+              return response.json();
+            })
+            .then(dateLastDrop => {
+              dateOfLastDrop.innerHTML = 'Data da última retirada: ' + new Date(dateLastDrop).toLocaleDateString('pt-BR');
+
+            })
+
+    fetch(`/stock/getStockHistoryInfo/${stockId}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Erro ao retornar histórico.");
+              }
+              return response.json();
+            })
+            .then(stockHistoryList => {
+
+              stockHistoryList.forEach(stockHistory => {
+
+                const previousProductQuantityAvailable = stockHistory.productQuantityAvailablePreviously;
+                const productQuantityAvailable = stockHistory.productQuantityAvailable;
+                let isBigger = false;
+
+                if(productQuantityAvailable > previousProductQuantityAvailable) {
+                  isBigger = true;
+                }
+
+                const quantityClass = isBigger ? "text-success" : "text-danger";
+
+                let suppliers = [];
+
+                stockHistory.supplier.forEach(supplier => {
+                  suppliers.push(supplier.name);
+                })
+
+                const dateChangeOfStockQuantity = new Date(stockHistory.dateChangeOfStockQuantity).toLocaleDateString('pt-BR')
+
+                const stockChangeDivInfo = `
+
+                    <div class="card">
+						<p class="text-primary">Data de mudança: ${dateChangeOfStockQuantity}</p>
+                        <p class="${quantityClass}"><b>Quantidade: ${previousProductQuantityAvailable} >>> ${productQuantityAvailable}</b></p>
+                        <p class="text-secondary">Fornecedores: ${suppliers}</p>
+					</div>
+
+                    `;
+
+                stockChangeDiv.insertAdjacentHTML("beforeend", stockChangeDivInfo);
+
+              })
+
+            })
+
+    })
+
+
+</script>
+
+<footer id="footer">
+  <img src="/Images/figureoutlogo1.svg">
+</footer>
+
+</body>
+</html>

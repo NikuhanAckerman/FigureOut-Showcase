@@ -1,0 +1,43 @@
+body {
+    padding-top: 56px;
+}
+
+@font-face {
+    font-family: "Gill Sans MT";
+    src: url(gillsansmt.ttf);
+}
+
+.navbar-custom {
+    background-color: #3C4AE5;
+}
+
+#upper-navbar-text {
+    color: #ffff;
+    font-family: "Gill Sans MT";
+    font-size: xx-large;
+}
+
+.navbar-top-button {
+    background-color: #250e8a !important;
+    color: #fff !important;
+    font-size: large !important;
+    font-family: "Gill Sans MT" !important;
+}
+
+#footer {
+  color: white;
+  text-align: center;
+}
+
+.add-delete-button {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+.small-input {
+    width: 100px;
+}
+
+#addressFormCanvas {
+    z-index: 1056; /* modal zindex é 1055, offcanvas do form de create address 1056 pra fica por cima */
+}

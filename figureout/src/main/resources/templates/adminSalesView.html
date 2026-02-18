@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas e trocas</title>
+    <link rel="stylesheet" href="/CSS/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="icon" href="/Images/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/6f5xX5L0d7/1XshTLF5j8l2/zg7L2Dd6fR5Jp4C" crossorigin="anonymous"></script>
+</head>
+
+<nav class="navbar navbar-custom fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a id="upper-navbar-text" class="navbar-brand">VENDAS E TROCAS</a>
+        </div>
+
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="btn navbar-top-button" href="/chart">Gráficos</a>
+                <a class="btn btn-danger" href="/index">Painel de Controle</a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<body>
+<div class="container mt-5">
+
+    <div class="text-center">
+        <p><b>Esta página é restrita para administradores</b></p>
+    </div>
+
+    <h1 class="mb-4">Visualização de Vendas</h1>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">ID da Venda</th>
+            <th scope="col">Código da Venda</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">Carrinho</th>
+            <th scope="col">Trocas</th>
+            <th scope="col">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="sale : ${sales}">
+            <td class="id-venda" th:text="${sale.id}"></td>
+
+            <td th:text="${sale.saleCode}"></td>
+
+            <td th:text="'ID: ' + ${sale.cart.client.id} + ' Nome: ' + ${sale.cart.client.name}"></td>
+            <td>
+                <button type="button" class="btn btn-secondary" th:data-bs-sale-id = "${sale.id}" data-bs-toggle="modal" data-bs-target="#seeCartModal">Ver carrinho</button>
+            </td>
+
+            <td>
+                <button type="button" class="btn btn-secondary" th:data-bs-sale-id = "${sale.id}" data-bs-toggle="modal" data-bs-target="#seeExchangesModal">Ver trocas</button>
+            </td>
+
+            <td>
+                <p class="text-primary" th:text="${sale.status}"></p>
+                <form th:action="@{/sales/seeSales/changeSaleStatus/{saleId}(saleId=${sale.id})}" method="POST" th:object="${changeSaleStatusDTO}">
+                    <input type="hidden" name="_method" value="PUT">
+
+                    <select th:id="saleStatus + ${sale.id}" name="status" class="form-control" th:field="*{status}" onchange="this.form.submit(); ">
+                        <option value="0" selected>Selecione um status</option>
+                        <option th:each="status : ${status}"
+                                th:value="${status.name()}" th:text="${status.name()}">
+                        </option>
+                    </select>
+
+                </form>
+            </td>
+
+        </tr>
+
+        </tbody>
+    </table>
+
+    <h1 class="mb-4">Visualização de Trocas</h1>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">ID da Troca</th>
+            <th scope="col">Código da Troca</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">Detalhes da Troca</th>
+            <th scope="col">Detalhes da Venda</th>
+            <th scope="col">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="exchange : ${exchanges}">
+            <td class="id-exchange" th:text="${exchange.id}"></td>
+            <td th:text="${exchange.exchangeCode}"></td>
+            <td th:text="'ID: ' + ${exchange.client.id} + ' Nome: ' + ${exchange.client.name}"></td>
+            <td>
+                <button type="button" class="btn btn-secondary" th:data-bs-exchange-id = "${exchange.id}" data-bs-toggle="modal" data-bs-target="#seeSpecificExchangeModal">Ver detalhes</button>
+            </td>
+            <td>
+                <button type="button" class="btn btn-secondary" th:data-bs-sale-id = "${exchange.sale.id}" data-bs-toggle="modal" data-bs-target="#seeCartModal">Ver venda</button>
+            </td>
+
+            <td >
+                <p class="text-primary" th:text="${exchange.status}"></p>
+                <form th:action="@{/exchange/seeExchanges/changeExchangeStatus/{exchangeId}(exchangeId=${exchange.id})}" method="POST" th:object="${changeExchangeStatusDTO}">
+                    <input type="hidden" name="_method" value="PUT">
+
+                    <select th:id="exchangeStatus + ${exchange.id}" name="status" class="form-control" th:field="*{status}" onchange="this.form.submit(); ">
+                        <option value="0" selected>Selecione um status</option>
+                        <option th:each="exchangeStatus : ${exchangeStatus}"
+                                th:value="${exchangeStatus.name()}" th:text="${exchangeStatus.name()}">
+                        </option>
+                    </select>
+
+                </form>
+            </td>
+
+        </tr>
+
+        </tbody>
+    </table>
+
+</div>
+
+<div id="seeCartModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Carrinho</h3>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h1 id="saleId"></h1>
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h1 id="saleCode" class="text-danger"></h1>
+                            <h2 id="cartId">ID do carrinho:</h2>
+                            <h2 id="clientIdId">ID do cliente:</h2>
+                            <h2 id="saleDate" class="text-primary"></h2>
+                            <h2 class="text-primary" id="clientId"></h2>
+                            <h2 class="text-success" id="totalPriceId"></h2>
+                            <h2 class="text-primary" id="freightId"></h2>
+                            <h2 class="text-secondary" id="promotionalCouponNameId"></h2>
+                            <h2 class="text-secondary" id="promotionalCouponDiscountId"></h2>
+
+                            <div id="cartDiv">
+
+                            </div>
+
+                            <h2 class="card-title">Produtos</h2>
+
+                            <div id="productListDiv">
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="seeExchangesModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Trocas</h3>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="exchangeDiv">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="seeSpecificExchangeModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Troca</h3>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="specificExchangeDiv">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const seeCartModal = document.getElementById("seeCartModal");
+    const seeExchangesModal = document.getElementById("seeExchangesModal")
+    const seeSpecificExchangeModal = document.getElementById("seeSpecificExchangeModal")
+
+    seeCartModal.addEventListener('show.bs.modal', function (event) {
+        console.log("mostrou modal de carrinho")
+        const button = event.relatedTarget
+
+        const saleId = button.getAttribute('data-bs-sale-id');
+
+        const elementWithId = document.getElementById('saleId');
+        elementWithId.textContent = 'ID da venda: '
+        elementWithId.textContent = elementWithId.textContent + " " + saleId;
+
+        const productListDiv = document.getElementById('productListDiv');
+        const cartIdElement = document.getElementById('cartId');
+        const clientIdElement = document.getElementById('clientIdId');
+        const clientNameElement = document.getElementById('clientId');
+        const totalPriceElement = document.getElementById('totalPriceId');
+        const freightElement = document.getElementById('freightId');
+        const promotionalCouponNameElement = document.getElementById('promotionalCouponNameId');
+        const promotionalCouponDiscountElement = document.getElementById('promotionalCouponDiscountId');
+        const saleDateElement = document.getElementById("saleDate");
+        const saleCodeElement = document.getElementById("saleCode");
+
+        productListDiv.innerHTML = '';
+
+        fetch(`/sales/getSaleCartId/${saleId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar ID do carrinho.");
+                }
+                return response.json();
+            })
+            .then(cartId => {
+                console.log("ID do carrinho:", cartId);
+                cartIdElement.innerHTML = 'ID do carrinho: ' + cartId;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        fetch(`/sales/getSaleDate/${saleId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar data da venda.");
+                }
+                return response.json();
+            })
+            .then(saleDate => {
+                const data = new Date(saleDate).toLocaleString('pt-BR');
+                saleDateElement.innerHTML = `Data da venda: ${data}`;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        fetch(`/sales/getSaleCode/${saleId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar código da venda.");
+                }
+                return response.text();
+            })
+            .then(saleCode => {
+                saleCodeElement.innerHTML = 'Código da venda: ' + saleCode;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        fetch(`/sales/getSaleClientId/${saleId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar ID do cliente.");
+                }
+                return response.json();
+            })
+            .then(clientId => {
+                console.log("ID do cliente:", clientId);
+
+
+                clientIdElement.innerHTML = 'ID do cliente: ' + clientId;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        fetch(`/sales/getSaleClient/${saleId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar cliente.");
+                }
+                return response.text();
+            })
+            .then(clientName => {
+                console.log(clientName);
+                clientNameElement.innerHTML = 'Nome do cliente: ' + clientName;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        fetch(`/sales/getSaleTotal/${saleId}`)
+            .then(response => {
+                console.log(response);
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar total da venda.");
+                }
+                return response.json();
+            })
+            .then(totalPrice => {
+                console.log(totalPrice);
+                totalPriceElement.innerHTML = 'Total da venda: R$' + totalPrice.toFixed(2);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        fetch(`/sales/getFreight/${saleId}`)
+            .then(response => {
+                console.log(response);
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar frete.");
+                }
+                return response.json();
+            })
+            .then(freight => {
+                console.log(freight);
+                freightElement.innerHTML = 'Frete: ' + (freight * 100) + '% do preço da compra';
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        fetch(`/sales/getSaleCartProducts/${saleId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar carrinho.");
+                }
+                return response.json();
+            })
+            .then(cartProducts => {
+                console.log(cartProducts);
+                let productList = '';
+
+                cartProducts.forEach(cartProduct => {
+                    const product = cartProduct.product;
+                    const unitaryPrice = cartProduct.unitaryPrice.toFixed(2);
+                    const productTotal = cartProduct.finalPrice.toFixed(2);
+                    const productQuantity = cartProduct.productQuantity;
+
+                    const productItem = `
+                        <div class="card mt-3">
+							<div class="card-body">
+							    <h3 class="card-title">ID: ${product.id}</h3>
+
+                                <p><b>${product.name}</b></p>
+                                <p>Quantidade comprada: ${productQuantity}</p>
+                                <p>Preço unitário: R$${unitaryPrice}</p>
+                                <p>Preço total: R$${productTotal}</p>
+                            </div>
+                        </div>
+            `;
+                    productList += productItem;
+                });
+
+                productListDiv.insertAdjacentHTML("beforeend", productList);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+            fetch(`/sales/getPromotionalCoupon/${saleId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erro ao retornar cupom promocional.");
+                    }
+                    return response.json();
+                })
+                .then(promotionalCoupon => {
+                    console.log(promotionalCoupon);
+                    if (promotionalCoupon == null || Object.keys(promotionalCoupon).length === 0) {
+                        console.log("nenhum cupom utilizado")
+                        promotionalCouponNameElement.innerHTML = 'Nenhum cupom utilizado.'
+                        promotionalCouponDiscountElement.innerHTML = ''
+
+                    } else {
+                        console.log("cupom utilizado")
+                        promotionalCouponNameElement.innerHTML = 'Cupom: ' + promotionalCoupon.couponName
+                        promotionalCouponDiscountElement.innerHTML = 'Desconto: ' + promotionalCoupon.couponDiscount*100 + '%'
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+
+    });
+
+    const exchangeDivElement = document.getElementById("exchangeDiv");
+
+    seeExchangesModal.addEventListener('show.bs.modal', function (event) {
+        console.log("mostrou modal de troca")
+
+        const button = event.relatedTarget
+
+        const saleId = button.getAttribute('data-bs-sale-id');
+
+        exchangeDivElement.innerHTML = '';
+
+        fetch(`/sales/getSaleExchangeList/${saleId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar trocas.");
+                }
+                return response.json();
+            })
+            .then(exchanges => {
+                console.log('Raw exchange data:', exchanges);
+
+                if (exchanges.length === 0) {
+                    console.warn("Nenhuma troca encontrada.");
+                    exchangeDivElement.innerHTML = '<h1 class="text-primary">Nenhuma troca.</h1>';
+                    return;
+                }
+
+                console.log(exchanges.length);
+
+                exchanges.forEach(exchange => {
+                    console.log(exchange.exchangeCode);
+                    let exchangeCoupon = '';
+
+                    if (exchange.coupon != null) {
+                        console.log("its not null lol")
+                        console.log(exchange.coupon.amountWorth)
+                        exchangeCoupon = `
+                                <div>
+                                    <h4 class="text-success">Código de cupom da troca: ${exchange.coupon.exchangeCouponCode}</h4>
+                                </div>
+                    `;
+                    }
+
+                    let finalAmount = exchange.finalAmount.toFixed(2);
+
+                    const exchangeItem = `
+                        <div class="card mt-3">
+                            <div class="card-body" id="exchangeDiv_${exchange.id}">
+                                <h1 class="card-title text-danger">Código da troca: ${exchange.exchangeCode}</h1>
+                                <h3 class="card-title">ID da troca: ${exchange.id}</h3>
+                                <h4 class="text-primary">Status: ${exchange.status}</h4>
+                                <h4 class="text-danger">Quantia total da troca: R$${finalAmount}</h4>
+                                <h4 class="text-primary">
+                                    Data de requisição da troca: ${new Date(exchange.exchangeRequestTime).toLocaleString('pt-BR')}
+                                </h4>
+                                ${exchangeCoupon}
+                                <div id="exchangeProductListDiv_${exchange.id}">
+
+                                </div>
+                            </div>
+                        </div>
+                        `;
+
+                    exchangeDivElement.insertAdjacentHTML('beforeend', exchangeItem)
+
+                    let currentExchange = document.getElementById(`exchangeProductListDiv_${exchange.id}`);
+
+                    exchange.returnedProducts.forEach(returnedProduct => {
+                        let unitaryPrice = returnedProduct.cartProduct.unitaryPrice.toFixed(2);
+                        let totalAmount = returnedProduct.finalAmount.toFixed(2);
+                        let quantityReturned = returnedProduct.quantityReturned
+                        console.log(quantityReturned);
+
+                        if(quantityReturned > 0) {
+                            const returnedProductItem = `
+                                    <div class="card mt-3">
+                                        <div class="card-body">
+                                            <p class="card-title">ID do produto: ${returnedProduct.cartProduct.id.productId}</p>
+                                            <p class="card-text">Nome: ${returnedProduct.cartProduct.product.name}</p>
+                                            <p class="card-text">Preço unitário: R$${unitaryPrice}</p>
+                                            <p class="card-text">Quantidade devolvida do produto: ${quantityReturned}</p>
+                                            <p class="card-text">Quantia total: R$${totalAmount}</p>
+                                            <p class="card-text">Quantidade ainda devolvível do produto: ${returnedProduct.cartProduct.exchangeableQuantity}</p>
+                                        </div>
+                                    </div>
+                                    `;
+
+                            currentExchange.insertAdjacentHTML('beforeend', returnedProductItem);
+                        }
+
+                    });
+
+                });
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+    });
+
+    const specificExchangeDivElement = document.getElementById("specificExchangeDiv");
+
+    seeSpecificExchangeModal.addEventListener('show.bs.modal', function(event) {
+        console.log("mostrou modal de troca específica")
+
+        const button = event.relatedTarget
+
+        const exchangeId = button.getAttribute('data-bs-exchange-id');
+
+        specificExchangeDivElement.innerHTML = '';
+
+        fetch(`/sales/getSpecificExchange/${exchangeId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar troca.");
+                }
+                return response.json();
+            })
+            .then(exchange => {
+                console.log('Raw exchange data:', exchange);
+
+                console.log(exchange.exchangeCode);
+                let exchangeCoupon = '';
+
+                if (exchange.coupon != null) {
+                    console.log("its not null lol")
+                    console.log(exchange.coupon.amountWorth)
+                    exchangeCoupon = `
+                         <div>
+                            <h4 class="text-success">Código de cupom da troca: ${exchange.coupon.exchangeCouponCode}</h4>
+                         </div>
+                    `;
+                }
+
+                let finalAmount = exchange.finalAmount.toFixed(2);
+
+                const exchangeItem = `
+                   <div class="card mt-3">
+                       <div class="card-body" id="exchangeDiv_${exchange.id}">
+                           <h1 class="card-title text-danger">Código da troca: ${exchange.exchangeCode}</h1>
+                           <h3 class="card-title">ID da troca: ${exchange.id}</h3>
+                           <h4 class="text-primary">Status: ${exchange.status}</h4>
+                           <h4 class="text-danger">Quantia total da troca: R$${finalAmount}</h4>
+                           <h4 class="text-primary">
+                              Data de requisição da troca: ${new Date(exchange.exchangeRequestTime).toLocaleString('pt-BR')}
+                           </h4>
+                           ${exchangeCoupon}
+                           <div id="specificExchangeProductListDiv_${exchange.id}">
+
+                           </div>
+                       </div>
+                   </div>
+                   `;
+
+                specificExchangeDivElement.insertAdjacentHTML('beforeend', exchangeItem)
+
+                const specificExchangeProductListDivElement = document.getElementById(`specificExchangeProductListDiv_${exchange.id}`);
+
+                exchange.returnedProducts.forEach(returnedProduct => {
+                    let unitaryPrice = returnedProduct.cartProduct.unitaryPrice.toFixed(2);
+                    let totalAmount = returnedProduct.finalAmount.toFixed(2);
+                    let quantityReturned = returnedProduct.quantityReturned;
+
+                    if(quantityReturned > 0) {
+                        const returnedProductItem = `
+                                    <div class="card mt-3">
+                                        <div class="card-body">
+                                            <p class="card-title">ID do produto: ${returnedProduct.cartProduct.id.productId}</p>
+                                            <p class="card-text">Nome: ${returnedProduct.cartProduct.product.name}</p>
+                                            <p class="card-text">Preço unitário: R$${unitaryPrice}</p>
+                                            <p class="card-text">Quantidade devolvida do produto: ${quantityReturned}</p>
+                                            <p class="card-text">Quantia total: R$${totalAmount}</p>
+                                            <p class="card-text">Quantidade ainda devolvível do produto: ${returnedProduct.cartProduct.exchangeableQuantity}</p>
+                                        </div>
+                                    </div>
+                      `;
+
+                        specificExchangeProductListDivElement.insertAdjacentHTML('beforeend', returnedProductItem);
+                    }
+
+                });
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+    });
+
+</script>
+
+<footer id="footer">
+    <img src="/Images/figureoutlogo1.svg">
+</footer>
+
+</body>
+</html>

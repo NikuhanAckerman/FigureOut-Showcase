@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Atualizar estoque de um produto</title>
+    <link rel="stylesheet" href="/CSS/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="icon" href="/Images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<nav class="navbar navbar-custom fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a id="upper-navbar-text" class="navbar-brand">ATUALIZAR ESTOQUE DE PRODUTO</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <form th:action="@{/stock/updateStock/{productId}(productId = ${productId})}" th:object="${updateStockDTO}" method="POST">
+        <input type="hidden" name="_method" value="PUT"/>
+        <div class="form-group">
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Informações Gerais</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-12 col-md-4">
+                            <label><b>Nova quantidade</b></label>
+                            <input type="number" class="form-control" id="productQuantityAvailable" step="1" placeholder="0" th:field="*{productQuantityAvailable}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <label><b>Data de mudança de quantidade em estoque</b></label>
+                            <input type="date" class="form-control" id="entryInStockDate" step="1" placeholder="Insira a data de mudança de quantidade do produto no estoque" th:field="*{dateChangeOfStockQuantity}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label><b>Fornecedor</b></label>
+                                <select multiple class="form-control" id="supplier" th:field="*{supplier}">
+                                    <option selected value="0">Selecione um fornecedor</option>
+                                    <option th:each="supplier : ${supplierList}" th:value="${supplier.id}" th:text="${supplier.name}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary add-delete-button" id="updateButton">Atualizar</button>
+            <a class="btn btn-danger add-delete-button" id="backButton" th:href="@{/stock/seeStock}">Voltar</a>
+
+        </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<footer id="footer">
+    <img src="/Images/figureoutlogo1.svg">
+</footer>
+
+</body>
+
+</html>

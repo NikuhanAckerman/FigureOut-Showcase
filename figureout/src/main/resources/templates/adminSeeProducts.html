@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Produtos</title>
+    <link rel="stylesheet" href="/CSS/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="icon" href="/Images/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/6f5xX5L0d7/1XshTLF5j8l2/zg7L2Dd6fR5Jp4C" crossorigin="anonymous"></script>
+</head>
+<body>
+<nav class="navbar navbar-custom fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a id="upper-navbar-text" class="navbar-brand">PRODUTOS</a>
+        </div>
+
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="btn navbar-top-button" href="/stock/seeStock">Estoque</a>
+                <a class="btn navbar-top-button" href="/products/createProduct" id="createProduct">Adicionar produto</a>
+                <a class="btn btn-danger" href="/index">Painel de Controle</a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<div class="container mt-5">
+
+    <!--BOTÃO DE FILTRAR -->
+
+    <a class="btn btn-outline-primary mb-3" id="filterProducts" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+            <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/>
+        </svg>Filtrar
+    </a>
+
+    <!--COMEÇA O FILTRO -->
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasExampleLabel">Filtrar Produtos</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div>
+                <form th:action="@{/products/filterProducts}" method="GET" class="mb-3">
+                    <div class="mb-3">
+                        <input type="text" name="id" class="form-control" id="filterID" th:value="${filterId}" placeholder="Filtrar por ID">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="name" class="form-control" id="filterName" th:value="${filterName}" placeholder="Filtrar por Nome">
+                    </div>
+                    <div class="mb-3 d-flex align-items-center">
+                        <div class="col-md-3">
+                            <input type="text" name="height" class="form-control" id="filterHeight" th:value="${filterHeight}" placeholder="Altura">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="width" class="form-control" id="filterWidth" th:value="${filterWidth}" placeholder="Largura">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="length" class="form-control" id="filterLength" th:value="${filterLength}" placeholder="Comprimento">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="weight" class="form-control" id="filterWeight" th:value="${filterWeight}" placeholder="Peso">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <input type="text" name="purchaseAmount" class="form-control" id="filterPurchaseValue" th:value="${filterPurchaseAmount}" placeholder="Filtrar por Valor de compra">
+                    </div>
+                    <div class="mb-3">
+                        <select id="filterPricingGroup" name="pricingGroup" class="form-control">
+                            <option value="0" selected>Selecione um Grupo de precificação</option>
+                            <option value="1" th:selected="${filterPricingGroup == 1}">Ouro</option>
+                            <option value="2" th:selected="${filterPricingGroup == 2}">Prata</option>
+                            <option value="3" th:selected="${filterPricingGroup == 3}">Bronze</option>
+                            <option value="4" th:selected="${filterPricingGroup == 4}">Ferro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="price" class="form-control" id="filterSellingValue" th:value="${filterPrice}" placeholder="Filtrar por Valor de venda">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnFilter">Filtrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--TERMINA O FILTRO -->
+
+    <div style="max-width: 1200px; margin: 0 auto">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Foto</th>
+                <th>Informações gerais</th>
+                <th>Ativo</th>
+                <th>Histórico de ativações</th>
+                <th>Categorias</th>
+                <th>Atualizar</th>
+                <th>Deletar</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text = "${product.id}"></td>
+                <td>
+                    <img th:src="@{/products/productPicture/{id}(id=${product.id})}" style="height: 200px; width: 100%;"/>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-secondary" th:data-bs-product-id = "${product.id}" data-bs-toggle="modal" data-bs-target="#seeGeneralInfoModal" >Ver informações gerais</button>
+                </td>
+                <td>
+                    <input type="checkbox" th:checked="${product.active}" disabled>
+                </td>
+
+                <td>
+                    <button type="button" class="btn btn-secondary" th:data-bs-product-id = "${product.id}" data-bs-toggle="modal" data-bs-target="#seeActivationInfoModal" >Ver histórico de ativações</button>
+                </td>
+
+                <td>
+                    <button type="button" class="btn btn-secondary" th:data-bs-product-id = "${product.id}" data-bs-toggle="modal" data-bs-target="#seeCategoriesModal" >Ver categorias</button>
+                </td>
+
+                <td>
+                    <a class="btn btn-primary" th:id="'updateProduct-' + ${product.id}" th:href="@{/products/updateProduct/{id}(id=${product.id})}">Atualizar</a>
+                </td>
+
+                <td>
+                    <form th:action="@{/products/deleteProduct/{id}(id=${product.id})}" method="POST">
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <button type="submit" th:id="'deleteProduct-' + ${product.id}" class="btn btn-danger btn-delete" onclick="return confirm('Tem certeza?')">Deletar</button>
+                    </form>
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="seeCategoriesModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ver categorias</h3>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h1 id="productIdCategory"></h1>
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h2 class="card-title">Categorias</h2>
+                            <div id="categoryListDiv">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="seeGeneralInfoModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ver informações gerais</h3>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h1 id="productIdGeneralInformation"></h1>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h2 class="card-title">Informações gerais</h2>
+                            <div id="generalInformationDiv">
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="seeActivationInfoModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ver histórico de ativações</h3>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h1 id="productIdActivationInformation"></h1>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h2 class="card-title">Histórico de ativações</h2>
+                            <button class="btn collapseActivationInfo" data-bs-toggle="collapse" data-bs-target="#activationInformationDiv">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                            <div id="activationInformationDiv" class="collapse">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const seeGeneralInfoModal = document.getElementById("seeGeneralInfoModal");
+    const seeActivationInfoModal = document.getElementById("seeActivationInfoModal")
+    const seeCategoriesModal = document.getElementById("seeCategoriesModal");
+
+    seeGeneralInfoModal.addEventListener('show.bs.modal', function (event) {
+        console.log("mostrou modal de informações gerais")
+
+        const button = event.relatedTarget
+
+        const productId = button.getAttribute('data-bs-product-id');
+
+        const elementWithId = document.getElementById('productIdGeneralInformation');
+        elementWithId.textContent = 'ID do produto: '
+        elementWithId.textContent = elementWithId.textContent + " " + productId;
+
+        const generalInformationDiv = document.getElementById('generalInformationDiv');
+        generalInformationDiv.innerHTML = '';
+
+        fetch(`/products/getProductGeneralInfo/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar produto.");
+                }
+                return response.json();
+            })
+            .then(product => {
+
+                    const productPurchaseAmount = product.purchaseAmount.toFixed(2);
+                    const productPrice = product.price.toFixed(2);
+                    const productPricingGroup = product.pricingGroup.name;
+                    const productPricingGroupPercentage = (product.pricingGroup.percentage * 100).toFixed(2)
+
+                    const generalInformation = `
+
+                    <button class="btn collapseGeneralInfo" data-bs-toggle="collapse" data-bs-target="#generalInfo">
+						<i class="bi bi-chevron-down"></i>
+					</button>
+
+                    <div id="generalInfo" class="collapse">
+						<p>Nome: ${product.name}</p>
+                        <p>Descrição: ${product.description}</p>
+                        <p>Altura: ${product.height}cm</p>
+                        <p>Largura: ${product.width}cm</p>
+                        <p>Peso: ${product.weight}g</p>
+                        <p>Comprimento: ${product.length}cm</p>
+                        <p>Preço de compra: R$${productPurchaseAmount}</p>
+                        <p>Grupo de precificação: ${productPricingGroup} (${productPricingGroupPercentage}%)</p>
+                        <p>Preço de venda: R$${productPrice}</p>
+                        <p>Fabricante: ${product.manufacturer.name}</p>
+                        <p>Tamanho: ${product.size.name}</p>
+					</div>
+
+                    `;
+
+                generalInformationDiv.insertAdjacentHTML("beforeend", generalInformation);
+
+            })
+
+
+    })
+
+    seeActivationInfoModal.addEventListener('show.bs.modal', function (event) {
+        console.log("mostrou modal de informações de ativação")
+
+        const button = event.relatedTarget
+
+        const productId = button.getAttribute('data-bs-product-id');
+
+        const elementWithId = document.getElementById('productIdActivationInformation');
+        elementWithId.textContent = 'ID do produto: '
+        elementWithId.textContent = elementWithId.textContent + " " + productId;
+
+        const activationInformationDiv = document.getElementById('activationInformationDiv');
+        activationInformationDiv.innerHTML = '';
+
+        fetch(`/products/getProductActivationInfo/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao retornar histórico de ativações..");
+                }
+                return response.json();
+            })
+            .then(productActivationList => {
+
+                productActivationList.forEach(productActivation => {
+
+                    const activationInformation = `
+
+                    <div class="card">
+                        <p class="text-primary"><b>Atividade: <input type="checkbox" class="productActivationActiveInput" data-bs-active="${productActivation.active}" disabled></b></p>
+                        <p class="text-primary">Razão: ${productActivation.reason}</p>
+                        <p class="text-primary">Data: ${new Date(productActivation.dateTime).toLocaleString('pt-BR')}</p>
+                        <p class="text-success">Categoria: ${productActivation.category}</p>
+                    </div>
+
+
+                    `;
+
+                    activationInformationDiv.insertAdjacentHTML("beforeend", activationInformation);
+
+                })
+
+                let inputList = document.querySelectorAll(`.productActivationActiveInput`)
+
+                inputList.forEach(input => {
+                    isActiveValue = input.getAttribute("data-bs-active")
+                    if(isActiveValue == 'true') {
+                        input.checked = true;
+                    }
+                });
+
+            })
+
+    })
+
+    seeCategoriesModal.addEventListener('show.bs.modal', function (event) {
+        console.log("mostrou modal de categoria")
+        const button = event.relatedTarget
+
+      const productId = button.getAttribute('data-bs-product-id');
+
+      const elementWithId = document.getElementById('productIdCategory');
+      elementWithId.textContent = 'ID do produto: '
+      elementWithId.textContent = elementWithId.textContent + " " + productId;
+
+      const categoryListDiv = document.getElementById('categoryListDiv');
+      categoryListDiv.innerHTML = '';
+
+      fetch(`/products/getProductCategories/${productId}`)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Erro ao retornar categorias.");
+                }
+                return response.json();
+              })
+              .then(categories => {
+
+                let categoryList = '';
+
+                categories.forEach(category => {
+                  const categoryItem = `<p><b>${category.name}</b></p>`;
+                  categoryList += categoryItem;
+                });
+
+                categoryListDiv.insertAdjacentHTML("beforeend", categoryList);
+
+              })
+
+    })
+
+</script>
+
+<footer id="footer">
+    <img src="/Images/figureoutlogo1.svg">
+</footer>
+
+</body>
+</html>

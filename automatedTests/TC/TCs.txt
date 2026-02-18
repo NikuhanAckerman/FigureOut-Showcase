@@ -1,0 +1,47 @@
+GRUPO: CLIENTE
+TC01 - Cadastrar Cliente
+TC02 - Atualizar Cliente
+TC03 - Remover Cliente
+TC04 - Aplicar filtro de clientes
+
+GRUPO: ENDEREÇO
+TC05 - Cadastrar Endereço
+TC06 - Atualizar Endereço
+TC07 - Remover Endereço
+
+GRUPO: CARTÃO DE CRÉDITO
+TC08 - Cadastrar Cartão de crédito
+TC09 - Atualizar Cartão de crédito
+TC10 - Atualizar Saldo de cartão de crédito
+TC11 - Remover Cartão de crédito
+
+GRUPO: PRODUTO
+TC12 - Cadastrar Produto
+TC13 - Atualizar Produto
+TC14 - Atualizar quantidade de produtos em estoque
+TC15 - Remover Produto
+TC16 - Aplicar filtro de produtos
+
+GRUPO: CUPOM PROMOCIONAL
+TC17 - Cadastrar Cupom promocional
+TC18 - Atualizar Cupom promocional
+TC19 - Remover Cupom promocional
+
+GRUPO: TRANSAÇÕES
+TC20 - Comprar Produtos
+TC21 - Aprovar Compra
+TC22 - Aplicar filtro na loja
+TC23 - Trocar Produtos comprados
+TC24 - Aprovar Troca
+
+GRUPO: PERFIL DE CLIENTE
+TC25 - Mostrar Senha em perfil de cliente
+TC26 - Alterar Senha de cliente
+TC27 - Remover notificação
+TC28 - (buscar compras em perfil de cliente)
+TC29 - (buscar trocas em perfil de cliente)
+
+GRUPO: OUTROS
+TC30 - Visualizar gráfico de vendas
+TC31 - !Interação com IA!
+TC32 - Visualizar ranking de clientes

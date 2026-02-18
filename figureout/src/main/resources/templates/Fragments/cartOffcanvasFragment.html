@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+</head>
+<body>
+
+    <div th:fragment="cartButtonFragment">
+        <button id="cart" type="button" class="nav-link bi bi-cart" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart"></button>
+    </div>
+
+    <div th:fragment="cartOffcanvasFragment(cart)">
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCart" aria-labelledby="offcanvasCartLabel">
+            <div class="offcanvas-header">
+                <h5 id="offcanvasCartLabel">Carrinho</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+
+                <div th:if="${!cart.cartProducts.isEmpty()}">
+
+                    <a id="proceedToCheckout" class="btn btn-primary mb-3" th:href="@{/sales/makeOrder/{cartId}(cartId=${cart.id})}">Prosseguir para compra</a>
+                    <p class="card-text">(você poderá mudar as quantidades na página de compra.)</p>
+
+                    <div th:if="${cart.promotionalCoupon} != null">
+                        <p class="text-primary" th:text="'Cupom aplicado neste carrinho: ' + ${cart.promotionalCoupon.couponName}"></p>
+                        <p class="text-primary" th:text="'Desconto: ' + ${cart.promotionalCoupon.couponDiscount * 100} + '%'"></p>
+                    </div>
+
+                    <div th:if="${cart.exchangeCoupons.size() >= 0} ">
+                        <p class="text-primary" th:text="'Cupons de troca aplicados neste carrinho:'"></p>
+                        <div th:each="exchangeCoupon : ${cart.exchangeCoupons}">
+                            <p class="text-primary" th:text="'Código do cupom: ' + ${exchangeCoupon.exchangeCouponCode}"></p>
+                            <p class="text-primary" th:text="'Desconto: ' + ${exchangeCoupon.amountWorth}"></p>
+                        </div>
+                    </div>
+
+                    <p class="text-success" th:text="'Total do carrinho: R$' + ${cart.totalPrice}"></p>
+
+                    <div class="card mb-3" th:each="cartProduct : ${cart.cartProducts}">
+                        <img th:src="@{/products/productPicture/{id}(id=${cartProduct.product.id})}" style="object-fit: cover; height: 300px; width: 100%;" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${cartProduct.product.name}"></h5>
+                            <p class="card-text" th:text="'por unidade: R$' + ${cartProduct.unitaryPrice}"></p>
+                            <p class="card-text" th:text="'Quantidade: ' + ${cartProduct.productQuantity}"></p>
+
+                            <a th:href="@{/products/specificProduct/{id}(id=${cartProduct.product.id})}" class="btn btn-primary">Visualizar produto</a>
+
+                            <form th:action="@{/cart/removeProductFromCart/{productId}/{cartId}(productId=${cartProduct.product.id}, cartId=${cart.id})}" method="POST">
+                                <input type="hidden" name="_method" value="DELETE"/>
+                                <button class="btn btn-danger" type="submit" onclick="return confirm('Tem certeza?')">Tirar do carrinho</button>
+                            </form>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div th:unless="${!cart.cartProducts.isEmpty()}">
+                    <p class="text-secondary">Sem items no carrinho</p>
+                </div>
+
+
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
